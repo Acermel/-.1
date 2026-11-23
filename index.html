@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Калькулятор выгоды</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 { font-size: 22px; }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #333;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 4px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #2e7d32;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #1b5e20; }
+    .result {
+      margin-top: 20px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .result b { color: #2e7d32; }
+  </style>
+</head>
+<body>
+
+  <h1>Калькулятор выгоды пока что от лампочки</h1>
+  <p>Введи параметры — покажу, сколько сэкономишь.</p>
+
+  <label>Мощность старой лампочки, Вт
+    <input type="number" id="powerOld" value="60">
+  </label>
+
+  <label>Мощность новой лампочки, Вт
+    <input type="number" id="powerNew" value="9">
+  </label>
+
+  <label>Сколько часов горит в день
+    <input type="number" id="hoursDay" value="3" step="0.5">
+  </label>
+
+  <label>Тариф, ₽ за кВт·ч
+    <input type="number" id="tariff" value="6" step="0.1">
+  </label>
+
+  <label>Цена новой лампочки, ₽
+    <input type="number" id="price" value="300">
+  </label>
+
+  <button onclick="calculate()">Посчитать</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function calculate() {
+      const powerOld = Number(document.getElementById('powerOld').value);
+      const powerNew = Number(document.getElementById('powerNew').value);
+      const hoursDay = Number(document.getElementById('hoursDay').value);
+      const tariff   = Number(document.getElementById('tariff').value);
+      const price    = Number(document.getElementById('price').value);
+
+      const savingsYear = (powerOld - powerNew) / 1000 * hoursDay * 365 * tariff;
+      const paybackMonths = savingsYear > 0 ? price / (savingsYear / 12) : 0;
+
+      document.getElementById('result').innerHTML = `
+        Экономия в год: <b>${savingsYear.toFixed(0)} ₽</b><br>
+        Окупаемость: <b>${paybackMonths.toFixed(0)} месяцев</b>
+      `;
+    }
+  </script>
+
+</body>
+</html>
