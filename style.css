@@ -1,0 +1,145 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  background: #eef2f0;
+  min-height: 100vh;
+  padding: 40px 16px;
+  color: #222;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  padding: 28px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.sub {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.places {
+  display: flex;
+  gap: 10px;
+}
+
+.place-btn {
+  flex: 1;
+  padding: 30px 10px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.place-btn:hover {
+  background: #e8e8e8;
+  border-color: #888;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #e8f0e8;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  padding: 9px 10px;
+  font-size: 15px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4a7a4a;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row > div {
+  flex: 1;
+}
+
+.btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  background: #3a6e3a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn:hover { background: #2e582e; }
+
+.btn.secondary {
+  background: #e8e8e8;
+  color: #444;
+  margin-top: 8px;
+}
+
+.btn.secondary:hover { background: #d8d8d8; }
+
+.result-block {
+  margin-top: 16px;
+}
+
+.res-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+}
+
+.res-item:last-child { border-bottom: none; }
+
+.res-item .label { font-size: 14px; color: #555; }
+
+.res-item .value {
+  font-weight: bold;
+  color: #222;
+}
+
+.highlight {
+  background: #f4f8f4;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.hidden { display: none; }

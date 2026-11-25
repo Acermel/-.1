@@ -2,98 +2,105 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Калькулятор выгоды</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 { font-size: 22px; }
-    label {
-      display: block;
-      margin-top: 12px;
-      font-size: 14px;
-      color: #333;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      font-size: 16px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 16px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #2e7d32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button:hover { background: #1b5e20; }
-    .result {
-      margin-top: 20px;
-      padding: 16px;
-      background: white;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    .result b { color: #2e7d32; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Калькулятор экономии</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>Калькулятор выгоды пока что от лампочки</h1>
-  <p>Введи параметры — покажу, сколько сэкономишь.</p>
+  <div class="app">
 
-  <label>Мощность старой лампочки, Вт
-    <input type="number" id="powerOld" value="60">
-  </label>
+    <div class="card" id="screen-place">
+      <h1>Калькулятор экономии</h1>
+      <p class="sub">Выберите место</p>
 
-  <label>Мощность новой лампочки, Вт
-    <input type="number" id="powerNew" value="9">
-  </label>
+      <div class="places">
+        <button class="place-btn" onclick="choosePlace('Дом')">Дом</button>
+        <button class="place-btn" onclick="choosePlace('Офис')">Офис</button>
+      </div>
+    </div>
 
-  <label>Сколько часов горит в день
-    <input type="number" id="hoursDay" value="3" step="0.5">
-  </label>
+    <div class="card hidden" id="screen-form">
+      <span class="badge" id="badge-place">Дом</span>
+      <h1>Новое мероприятие</h1>
 
-  <label>Тариф, ₽ за кВт·ч
-    <input type="number" id="tariff" value="6" step="0.1">
-  </label>
+      <label>Название
+        <input type="text" id="mName" value="Замена лампочек">
+      </label>
 
-  <label>Цена новой лампочки, ₽
-    <input type="number" id="price" value="300">
-  </label>
+      <div class="row">
+        <div>
+          <label>Старая мощность, Вт
+            <input type="number" id="powerOld" value="60" min="1">
+          </label>
+        </div>
+        <div>
+          <label>Новая мощность, Вт
+            <input type="number" id="powerNew" value="9" min="1">
+          </label>
+        </div>
+      </div>
 
-  <button onclick="calculate()">Посчитать</button>
+      <div class="row">
+        <div>
+          <label>Часов в день
+            <input type="number" id="hoursDay" value="3" step="0.5" min="0.1">
+          </label>
+        </div>
+        <div>
+          <label>Тариф, руб/кВт·ч
+            <input type="number" id="tariff" value="6" step="0.1" min="0.1">
+          </label>
+        </div>
+      </div>
 
-  <div class="result" id="result"></div>
+      <div class="row">
+        <div>
+          <label>Количество
+            <input type="number" id="count" value="1" min="1" step="1">
+          </label>
+        </div>
+        <div>
+          <label>Цена за штуку, руб
+            <input type="number" id="price" value="300" min="1">
+          </label>
+        </div>
+      </div>
 
-  <script>
-    function calculate() {
-      const powerOld = Number(document.getElementById('powerOld').value);
-      const powerNew = Number(document.getElementById('powerNew').value);
-      const hoursDay = Number(document.getElementById('hoursDay').value);
-      const tariff   = Number(document.getElementById('tariff').value);
-      const price    = Number(document.getElementById('price').value);
+      <button class="btn" onclick="calculate()">Посчитать</button>
+      <button class="btn secondary" onclick="goBack()">Назад</button>
+    </div>
 
-      const savingsYear = (powerOld - powerNew) / 1000 * hoursDay * 365 * tariff;
-      const paybackMonths = savingsYear > 0 ? price / (savingsYear / 12) : 0;
+    <div class="card hidden" id="screen-result">
+      <span class="badge" id="badge-place-result">Дом</span>
+      <h1 id="result-title">Результат</h1>
+      <p class="sub" id="result-place"></p>
 
-      document.getElementById('result').innerHTML = `
-        Экономия в год: <b>${savingsYear.toFixed(0)} ₽</b><br>
-        Окупаемость: <b>${paybackMonths.toFixed(0)} месяцев</b>
-      `;
-    }
-  </script>
+      <div class="result-block">
+        <div class="res-item">
+          <span class="label">Бюджет</span>
+          <span class="value" id="r-budget">0</span>
+        </div>
+        <div class="res-item">
+          <span class="label">Экономия в год</span>
+          <span class="value" id="r-savings">0</span>
+        </div>
+        <div class="res-item">
+          <span class="label">Окупаемость</span>
+          <span class="value" id="r-payback">0</span>
+        </div>
+        <div class="res-item highlight">
+          <span class="label">За 5 лет</span>
+          <span class="value" id="r-earn5y">0</span>
+        </div>
+      </div>
 
+      <button class="btn" onclick="newMeasure()">Ещё мероприятие</button>
+      <button class="btn secondary" onclick="goHome()">На главную</button>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
