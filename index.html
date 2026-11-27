@@ -3,103 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор экономии</title>
+  <title>Экономика дома — калькулятор выгоды</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div class="app">
-
-    <div class="card" id="screen-place">
-      <h1>Калькулятор экономии</h1>
-      <p class="sub">Выберите место</p>
-
-      <div class="places">
-        <button class="place-btn" onclick="choosePlace('Дом')">Дом</button>
-        <button class="place-btn" onclick="choosePlace('Офис')">Офис</button>
+  <!-- ШАПКА -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="#" class="logo" onclick="goHome(); return false;">
+        <span class="logo-mark">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11.5L12 3.5L21 11.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5.5 10V20H18.5V10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 20V14.5H14V20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="logo-name">Экономика дома</span>
+      </a>
+      <div class="topbar-right">
+        <span class="topbar-tag">Калькулятор выгоды</span>
+        <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Сменить тему" aria-label="Сменить тему">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" id="theme-icon">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 2V4M12 20V22M4 12H2M22 12H20M5 5L7 7M17 17L19 19M5 19L7 17M17 7L19 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
     </div>
+  </header>
 
-    <div class="card hidden" id="screen-form">
-      <span class="badge" id="badge-place">Дом</span>
-      <h1>Новое мероприятие</h1>
+  <main class="container">
 
-      <label>Название
-        <input type="text" id="mName" value="Замена лампочек">
-      </label>
-
-      <div class="row">
-        <div>
-          <label>Старая мощность, Вт
-            <input type="number" id="powerOld" value="60" min="1">
-          </label>
-        </div>
-        <div>
-          <label>Новая мощность, Вт
-            <input type="number" id="powerNew" value="9" min="1">
-          </label>
+    <!-- ЭКРАН 1: ВИТРИНА -->
+    <section class="screen" id="screen-catalog">
+      <div class="hero">
+        <p class="eyebrow">Добро пожаловать</p>
+        <h1><span class="squiggle">Окупится ли это?</span></h1>
+        <p class="lead">LED-лампочка за 300&nbsp;₽ кажется дорогой рядом с 60-рублёвой. Обед в кафе за 700&nbsp;₽ — привычным. Выберите сценарий, подставьте свои цифры — и увидите в рублях, сколько решение стоит и сколько приносит.</p>
+        <div class="hero-facts">
+          <span><b data-count="measures">…</b> сценариев</span>
+          <span><b data-count="cats">…</b> категорий</span>
+          <span>без регистрации</span>
+          <span>работает офлайн</span>
         </div>
       </div>
 
-      <div class="row">
-        <div>
-          <label>Часов в день
-            <input type="number" id="hoursDay" value="3" step="0.5" min="0.1">
-          </label>
+      <h2 class="section-title">Что хотите посчитать?</h2>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="measures-grid"></div>
+    </section>
+
+    <!-- ЭКРАН 2: ФОРМА -->
+    <section class="screen hidden" id="screen-form">
+      <button class="back-link" onclick="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        К сценариям
+      </button>
+
+      <div class="form-header">
+        <span class="badge" id="badge-cat">—</span>
+        <h1 id="form-title">—</h1>
+        <p class="lead-small" id="form-desc">—</p>
+      </div>
+
+      <div class="form-card">
+        <div class="field">
+          <label>Название мероприятия</label>
+          <input type="text" id="mName" placeholder="Например: лампочки в гостиной">
         </div>
-        <div>
-          <label>Тариф, руб/кВт·ч
-            <input type="number" id="tariff" value="6" step="0.1" min="0.1">
-          </label>
+
+        <div id="fields-container"></div>
+
+        <button class="btn-primary" onclick="calculate()">Посчитать выгоду</button>
+      </div>
+    </section>
+
+    <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
+    <section class="screen hidden" id="screen-result">
+      <button class="back-link" onclick="goHome()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        К сценариям
+      </button>
+
+      <div class="form-header">
+        <span class="badge" id="badge-cat-result">—</span>
+        <h1 id="result-title">Результат</h1>
+        <p class="lead-small" id="result-subtitle"></p>
+      </div>
+
+      <div class="result-card">
+        <div class="result-row">
+          <div class="result-label">Потрачу</div>
+          <div class="result-value" id="r-budget">0</div>
+        </div>
+
+        <div class="result-row big">
+          <div class="result-label">Сэкономлю в год</div>
+          <div class="result-value accent" id="r-savings">0</div>
+        </div>
+
+        <div class="result-row">
+          <div class="result-label">Окупится за</div>
+          <div class="result-value" id="r-payback">0</div>
+        </div>
+
+        <div class="payback-block">
+          <div class="payback-header">
+            <span>Возврат за 5 лет</span>
+            <span id="payback-percent">0%</span>
+          </div>
+          <div class="payback-bar">
+            <div class="payback-fill" id="payback-fill"></div>
+          </div>
+        </div>
+
+        <div class="earn-block">
+          <div class="earn-label">Чистыми за 5 лет</div>
+          <div class="earn-value" id="r-earn5y">0</div>
         </div>
       </div>
 
-      <div class="row">
-        <div>
-          <label>Количество
-            <input type="number" id="count" value="1" min="1" step="1">
-          </label>
-        </div>
-        <div>
-          <label>Цена за штуку, руб
-            <input type="number" id="price" value="300" min="1">
-          </label>
-        </div>
-      </div>
+      <p class="verdict" id="r-verdict"></p>
 
-      <button class="btn" onclick="calculate()">Посчитать</button>
-      <button class="btn secondary" onclick="goBack()">Назад</button>
+      <button class="btn-secondary" onclick="newMeasure()">Посчитать другое мероприятие</button>
+    </section>
+
+  </main>
+
+  <!-- ПОДВАЛ -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <strong>Экономика дома</strong>
+        <p>Калькулятор выгоды от бытовых улучшений. Ничего не сохраняем и никуда не отправляем: посчитали — и с чистой совестью закрыли вкладку.</p>
+      </div>
+      <div class="footer-facts">
+        <div class="fact"><b data-count="measures">…</b><span>сценариев</span></div>
+        <div class="fact"><b data-count="cats">…</b><span>категорий</span></div>
+        <div class="fact"><b>0</b><span>фреймворков</span></div>
+      </div>
     </div>
-
-    <div class="card hidden" id="screen-result">
-      <span class="badge" id="badge-place-result">Дом</span>
-      <h1 id="result-title">Результат</h1>
-      <p class="sub" id="result-place"></p>
-
-      <div class="result-block">
-        <div class="res-item">
-          <span class="label">Бюджет</span>
-          <span class="value" id="r-budget">0</span>
-        </div>
-        <div class="res-item">
-          <span class="label">Экономия в год</span>
-          <span class="value" id="r-savings">0</span>
-        </div>
-        <div class="res-item">
-          <span class="label">Окупаемость</span>
-          <span class="value" id="r-payback">0</span>
-        </div>
-        <div class="res-item highlight">
-          <span class="label">За 5 лет</span>
-          <span class="value" id="r-earn5y">0</span>
-        </div>
-      </div>
-
-      <button class="btn" onclick="newMeasure()">Ещё мероприятие</button>
-      <button class="btn secondary" onclick="goHome()">На главную</button>
+    <div class="container footer-bottom">
+      <span>© <span id="year">2026</span> · учебный проект</span>
+      <span>HTML + CSS + JS · открывается двойным кликом</span>
     </div>
-
-  </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>
