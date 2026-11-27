@@ -9,6 +9,7 @@
   --line: #e4e0d3;
   --accent: #2e7d4f;
   --accent-dark: #235f3c;
+  --accent-contrast: #ffffff;
   --accent-soft: #e7f0e4;
   --glass: rgba(246, 244, 238, 0.88);
   --shadow: 0 10px 24px rgba(35, 38, 31, 0.09);
@@ -24,6 +25,7 @@ body[data-theme="dark"] {
   --line: #2b332c;
   --accent: #58c98a;
   --accent-dark: #3fae73;
+  --accent-contrast: #0e1f14;
   --accent-soft: #1e2c22;
   --glass: rgba(20, 24, 21, 0.86);
   --shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
@@ -242,7 +244,7 @@ body[data-theme="dark"] .squiggle {
 .filter.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
 }
 
 .filter-count {
@@ -255,7 +257,7 @@ body[data-theme="dark"] .squiggle {
 }
 
 .filter.active .filter-count {
-  background: rgba(255, 255, 255, 0.22);
+  background: color-mix(in srgb, var(--accent-contrast) 22%, transparent);
   border-color: transparent;
 }
 
@@ -264,6 +266,138 @@ body[data-theme="dark"] .squiggle {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
   gap: 14px;
+}
+
+/* Плашки категорий на первом экране */
+.cat-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.cat-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.cat-tile:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--cat) 45%, var(--line));
+  box-shadow: var(--shadow);
+}
+
+.cat-tile-icon {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--cat) 13%, transparent);
+  color: var(--cat);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease;
+}
+
+.cat-tile-icon svg { width: 26px; height: 26px; }
+
+body[data-theme="dark"] .cat-tile-icon svg { filter: brightness(1.3) saturate(1.05); }
+
+.cat-tile:hover .cat-tile-icon { transform: scale(1.06) rotate(-4deg); }
+
+.cat-tile-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cat-tile-name {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.cat-tile-hint {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  line-height: 1.4;
+}
+
+.cat-tile-count {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.cat-tile:hover .cat-tile-count {
+  color: var(--cat);
+  border-color: var(--cat);
+}
+
+/* Заголовок выбранной категории */
+.cat-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.cat-hint {
+  font-size: 13.5px;
+  color: var(--text-soft);
+  margin: 4px 0 18px;
+  padding-left: 19px;
+}
+
+.cat-heading::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--cat, var(--accent));
+}
+
+.cat-count {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+/* Обводку иконок задаёт CSS — чтобы не дублировать атрибуты в каждом пути */
+.measure-icon svg :is(path, rect, circle, line, ellipse),
+.cat-tile-icon svg :is(path, rect, circle, line, ellipse) {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
 }
 
 .measure-card {
@@ -289,12 +423,6 @@ body[data-theme="dark"] .squiggle {
 
 .measure-card:active { transform: translateY(-1px); }
 
-.measure-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .measure-icon {
   width: 40px;
   height: 40px;
@@ -312,22 +440,6 @@ body[data-theme="dark"] .squiggle {
 body[data-theme="dark"] .measure-icon svg { filter: brightness(1.3) saturate(1.05); }
 
 .measure-card:hover .measure-icon { transform: scale(1.08) rotate(-4deg); }
-
-.measure-cat {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  color: var(--text-soft);
-}
-
-.measure-cat::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--cat);
-}
 
 .measure-body { flex: 1; }
 
@@ -464,6 +576,13 @@ body[data-theme="dark"] .measure-icon svg { filter: brightness(1.3) saturate(1.0
   gap: 12px;
 }
 
+.form-note {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  line-height: 1.55;
+  margin: 2px 0 10px;
+}
+
 /* ============ Кнопки ============ */
 .btn-primary {
   width: 100%;
@@ -473,7 +592,7 @@ body[data-theme="dark"] .measure-icon svg { filter: brightness(1.3) saturate(1.0
   font-weight: 600;
   font-family: inherit;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
   border: none;
   border-radius: 10px;
   cursor: pointer;

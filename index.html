@@ -35,32 +35,51 @@
 
   <main class="container">
 
-    <!-- ЭКРАН 1: ВИТРИНА -->
-    <section class="screen" id="screen-catalog">
+    <!-- ЭКРАН 1: КАТЕГОРИИ -->
+    <section class="screen" id="screen-cats">
       <div class="hero">
         <p class="eyebrow">Добро пожаловать</p>
         <h1><span class="squiggle">Окупится ли это?</span></h1>
-        <p class="lead">LED-лампочка за 300&nbsp;₽ кажется дорогой рядом с 60-рублёвой. Обед в кафе за 700&nbsp;₽ — привычным. Выберите сценарий, подставьте свои цифры — и увидите в рублях, сколько решение стоит и сколько приносит.</p>
+        <p class="lead">LED-лампочка за 300&nbsp;₽ кажется дорогой рядом с 60-рублёвой. Обед в кафе за 700&nbsp;₽ — привычным. Выберите сценарий, подставьте свои цифры — и увидите в рублях, сколько решение стоит и сколько приносит. Сценарии — для дома, офиса, завода и дачи.</p>
         <div class="hero-facts">
-          <span><b data-count="measures">…</b> сценариев</span>
-          <span><b data-count="cats">…</b> категорий</span>
+          <span id="chip-measures"></span>
+          <span id="chip-cats"></span>
           <span>без регистрации</span>
           <span>работает офлайн</span>
         </div>
       </div>
 
-      <h2 class="section-title">Что хотите посчитать?</h2>
+      <h2 class="section-title">С чего начнём?</h2>
+      <div class="cat-tiles" id="cat-tiles"></div>
+    </section>
+
+    <!-- ЭКРАН 2: МЕРОПРИЯТИЯ КАТЕГОРИИ -->
+    <section class="screen hidden" id="screen-cat">
+      <button class="back-link" onclick="goBack()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        К категориям
+      </button>
+
       <div class="filters" id="filters"></div>
+
+      <h3 class="cat-heading" id="cat-heading">
+        <span id="cat-name">—</span>
+        <span class="cat-count" id="cat-count"></span>
+      </h3>
+      <p class="cat-hint" id="cat-hint"></p>
+
       <div class="grid" id="measures-grid"></div>
     </section>
 
     <!-- ЭКРАН 2: ФОРМА -->
     <section class="screen hidden" id="screen-form">
-      <button class="back-link" onclick="goBack()">
+      <button class="back-link" onclick="goList()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        К сценариям
+        К мероприятиям
       </button>
 
       <div class="form-header">
@@ -83,11 +102,11 @@
 
     <!-- ЭКРАН 3: РЕЗУЛЬТАТ -->
     <section class="screen hidden" id="screen-result">
-      <button class="back-link" onclick="goHome()">
+      <button class="back-link" onclick="goList()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        К сценариям
+        К мероприятиям
       </button>
 
       <div class="form-header">
@@ -140,11 +159,11 @@
     <div class="container footer-grid">
       <div class="footer-brand">
         <strong>Экономика дома</strong>
-        <p>Калькулятор выгоды от бытовых улучшений. Ничего не сохраняем и никуда не отправляем: посчитали — и с чистой совестью закрыли вкладку.</p>
+        <p>Калькулятор выгоды для дома, офиса, завода и дачи. Ничего не сохраняем и никуда не отправляем: посчитали — и с чистой совестью закрыли вкладку.</p>
       </div>
       <div class="footer-facts">
-        <div class="fact"><b data-count="measures">…</b><span>сценариев</span></div>
-        <div class="fact"><b data-count="cats">…</b><span>категорий</span></div>
+        <div class="fact"><b id="fact-measures">…</b><span id="fact-measures-word"></span></div>
+        <div class="fact"><b id="fact-cats">…</b><span id="fact-cats-word"></span></div>
         <div class="fact"><b>0</b><span>фреймворков</span></div>
       </div>
     </div>
