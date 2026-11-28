@@ -1,5 +1,7 @@
 let currentMeasure = null;
 let currentFilter = 'all';
+let currentQuery = '';
+let lastCalc = null; // последний показанный расчёт — для «Сохранить в журнал»
 
 // Иконки (24×24, stroke): обводку задаёт CSS в .measure-icon и .cat-tile-icon
 const I = {
@@ -1842,6 +1844,14 @@ function init() {
   updateThemeIcon(saved);
   renderCats();
   fillCounts();
+  renderJournal();
+  const searchEl = document.getElementById('search');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      currentQuery = searchEl.value;
+      renderGrid(currentFilter);
+    });
+  }
   const year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
 
@@ -1975,10 +1985,18 @@ function cardFor(key) {
 
 function renderGrid(cat) {
   const grid = document.getElementById('measures-grid');
+  const empty = document.getElementById('grid-empty');
+  const q = currentQuery.trim().toLowerCase();
   grid.innerHTML = '';
+  let shown = 0;
   Object.keys(MEASURES).forEach(k => {
-    if (MEASURES[k].cat === cat) grid.appendChild(cardFor(k));
+    const m = MEASURES[k];
+    if (m.cat !== cat) return;
+    if (q && !(m.name + ' ' + m.desc).toLowerCase().includes(q)) return;
+    grid.appendChild(cardFor(k));
+    shown++;
   });
+  if (empty) empty.classList.toggle('hidden', shown > 0);
 }
 
 function openMeasure(key) {
@@ -2064,24 +2082,18 @@ function verdictFor(savings, budget, payback) {
   return 'Окупаемость небыстрая: решайте, хватит ли терпения.';
 }
 
-function calculate() {
-  const m = MEASURES[currentMeasure];
-  const name = document.getElementById('mName').value.trim() || m.name;
-
-  const v = {};
-  m.fields.forEach(f => {
-    v[f.key] = Number(document.getElementById('f_' + f.key).value) || 0;
-  });
-
-  const { budget, savings } = m.calc(v);
+// Показ результата: и из формы, и из журнала — вход одинаковый
+function showResult(res) {
+  const { budget, savings } = res;
   const payback = savings > 0 ? budget / (savings / 12) : 0;
   const earn5y = savings * 5 - budget;
 
+  const info = CATS[res.cat];
   const badge = document.getElementById('badge-cat-result');
-  badge.textContent = CATS[m.cat].name;
-  badge.style.setProperty('--cat', CATS[m.cat].color);
-  document.getElementById('result-title').textContent = name;
-  document.getElementById('result-subtitle').textContent = m.desc;
+  badge.textContent = info ? info.name : res.cat;
+  if (info) badge.style.setProperty('--cat', info.color);
+  document.getElementById('result-title').textContent = res.name;
+  document.getElementById('result-subtitle').textContent = res.desc;
 
   document.getElementById('r-budget').textContent = fmt(budget);
   document.getElementById('r-savings').textContent = fmt(savings);
@@ -2101,7 +2113,133 @@ function calculate() {
     fill.style.width = pct + '%';
   }, 60);
 
+  renderChart(budget, savings);
+  lastCalc = { name: res.name, cat: res.cat, desc: res.desc, budget, savings };
   showScreen('screen-result');
+}
+
+function calculate() {
+  const m = MEASURES[currentMeasure];
+  const name = document.getElementById('mName').value.trim() || m.name;
+
+  const v = {};
+  m.fields.forEach(f => {
+    v[f.key] = Number(document.getElementById('f_' + f.key).value) || 0;
+  });
+
+  const { budget, savings } = m.calc(v);
+  showResult({ name, cat: m.cat, desc: m.desc, budget, savings });
+}
+
+// SVG-график накопленной экономии: линия 0→60 месяцев и точка окупаемости
+function renderChart(budget, savings) {
+  const box = document.getElementById('r-chart');
+  if (!box) return;
+
+  const W = 560, H = 190, T = 18, R = 16, B = 28, L = 16;
+  const x = t => L + (W - L - R) * t / 60;
+  const net = t => savings * t / 12 - budget;
+  let maxV = Math.max(savings * 5 - budget, budget, 0);
+  let minV = Math.min(-budget, 0);
+  if (maxV === minV) { maxV += 1; minV -= 1; }
+  const y = v => T + (H - T - B) * (maxV - v) / (maxV - minV);
+
+  const pts = [];
+  for (let t = 0; t <= 60; t++) pts.push(x(t).toFixed(1) + ',' + y(net(t)).toFixed(1));
+  const zero = y(0).toFixed(1);
+
+  // точка окупаемости: где линия пересекает ноль
+  let cross = null;
+  if (savings > 0 && budget > 0) cross = budget / (savings / 12);
+  if (savings > 0 && budget === 0) cross = 0;
+
+  let marker = '';
+  if (cross !== null && cross <= 60) {
+    const cx = x(cross), cy = y(0);
+    const label = cross < 1 ? 'сразу' : Math.round(cross) + ' мес';
+    const anchor = cx < 60 ? 'start' : (cx > W - 60 ? 'end' : 'middle');
+    const lx = anchor === 'start' ? cx + 8 : (anchor === 'end' ? cx - 8 : cx);
+    marker =
+      `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4.5" fill="currentColor"/>` +
+      `<text x="${lx.toFixed(1)}" y="${(cy - 10).toFixed(1)}" text-anchor="${anchor}" font-size="12" font-weight="600" fill="var(--text)">${label}</text>`;
+  }
+
+  box.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Накопленная экономия по месяцам за 5 лет">
+      ${[0.25, 0.5, 0.75].map(k => {
+        const gy = (T + (H - T - B) * k).toFixed(1);
+        return `<line x1="${L}" x2="${W - R}" y1="${gy}" y2="${gy}" stroke="var(--line)" stroke-width="1"/>`;
+      }).join('')}
+      <line x1="${L}" x2="${W - R}" y1="${zero}" y2="${zero}" stroke="var(--text-soft)" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <text x="${L}" y="${H - 8}" font-size="12" fill="var(--text-soft)">0 мес</text>
+      <text x="${W - R}" y="${H - 8}" font-size="12" fill="var(--text-soft)" text-anchor="end">5 лет</text>
+      ${marker}
+    </svg>`;
+}
+
+// ===== Журнал расчётов: только локально и только по кнопке =====
+const JOURNAL_KEY = 'econ-journal';
+
+function loadJournal() {
+  try { return JSON.parse(localStorage.getItem(JOURNAL_KEY)) || []; }
+  catch (e) { return []; }
+}
+
+function saveJournal(list) {
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(list)); } catch (e) {}
+}
+
+function saveToJournal() {
+  if (!lastCalc) return;
+  const list = loadJournal();
+  list.unshift({ id: Date.now(), date: new Date().toLocaleDateString('ru-RU'), ...lastCalc });
+  saveJournal(list.slice(0, 20));
+  renderJournal();
+  const btn = document.getElementById('journal-btn');
+  if (btn) {
+    btn.textContent = 'Сохранено ✓';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'Сохранить в журнал';
+      btn.disabled = false;
+    }, 1600);
+  }
+}
+
+function renderJournal() {
+  const box = document.getElementById('journal');
+  const listEl = document.getElementById('journal-list');
+  if (!box || !listEl) return;
+  const list = loadJournal();
+  box.classList.toggle('hidden', list.length === 0);
+  listEl.innerHTML = '';
+  list.forEach(e => {
+    const info = CATS[e.cat];
+    const row = document.createElement('div');
+    row.className = 'journal-row';
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
+    if (info) row.style.setProperty('--cat', info.color);
+    row.onclick = () => showResult({ name: e.name, cat: e.cat, desc: e.desc, budget: e.budget, savings: e.savings });
+    row.onkeydown = ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); row.onclick(); }
+    };
+    row.innerHTML = `
+      <div class="journal-main">
+        <div class="journal-name">${e.name}</div>
+        <div class="journal-meta">${e.date}${info ? ' · ' + info.name : ''}</div>
+      </div>
+      <div class="journal-sum">${fmt(e.savings)}<span class="journal-per"> /год</span></div>
+      <button class="journal-del" title="Удалить" aria-label="Удалить из журнала">×</button>
+    `;
+    row.querySelector('.journal-del').onclick = ev => {
+      ev.stopPropagation();
+      saveJournal(loadJournal().filter(x => x.id !== e.id));
+      renderJournal();
+    };
+    listEl.appendChild(row);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -51,6 +51,12 @@
 
       <h2 class="section-title">С чего начнём?</h2>
       <div class="cat-tiles" id="cat-tiles"></div>
+
+      <section class="journal hidden" id="journal">
+        <h2 class="section-title">Мои расчёты</h2>
+        <p class="journal-note">Хранятся только в этом браузере — никуда не отправляются.</p>
+        <div class="journal-list" id="journal-list"></div>
+      </section>
     </section>
 
     <!-- ЭКРАН 2: МЕРОПРИЯТИЯ КАТЕГОРИИ -->
@@ -62,7 +68,10 @@
         К категориям
       </button>
 
-      <div class="filters" id="filters"></div>
+      <div class="cat-toolbar">
+        <div class="filters" id="filters"></div>
+        <input type="search" id="search" class="search" placeholder="Найти мероприятие…" aria-label="Поиск мероприятий">
+      </div>
 
       <h3 class="cat-heading" id="cat-heading">
         <span id="cat-name">—</span>
@@ -71,6 +80,7 @@
       <p class="cat-hint" id="cat-hint"></p>
 
       <div class="grid" id="measures-grid"></div>
+      <p class="grid-empty hidden" id="grid-empty">Такого мероприятия в категории нет — попробуйте другое слово или другую категорию.</p>
     </section>
 
     <!-- ЭКРАН 2: ФОРМА -->
@@ -141,6 +151,14 @@
           </div>
         </div>
 
+        <div class="chart-block">
+          <div class="payback-header">
+            <span>Накопленная экономия</span>
+            <span>0 мес → 5 лет</span>
+          </div>
+          <div class="chart" id="r-chart"></div>
+        </div>
+
         <div class="earn-block">
           <div class="earn-label">Чистыми за 5 лет</div>
           <div class="earn-value" id="r-earn5y">0</div>
@@ -149,7 +167,11 @@
 
       <p class="verdict" id="r-verdict"></p>
 
-      <button class="btn-secondary" onclick="newMeasure()">Посчитать другое мероприятие</button>
+      <div class="result-actions">
+        <button class="btn-secondary" id="journal-btn" onclick="saveToJournal()">Сохранить в журнал</button>
+        <button class="btn-secondary" onclick="window.print()">Распечатать</button>
+        <button class="btn-secondary" onclick="newMeasure()">Посчитать другое мероприятие</button>
+      </div>
     </section>
 
   </main>
